@@ -1,7 +1,27 @@
 <html>
 <title>
 
+    <style>
+        .fire1div {
+            width: 2%;
+            height: 5%;
+            position: absolute;
+            z-index: 10;
+            background-image: url('rocket.gif');
+            background-size: 100% 100%;
+        }
 
+        .enemy1 {
+            width: 15%;
+            height: 15%;
+            position: absolute;
+            top: 100px;
+            z-index: 10;
+            right: -200px;
+            background-image: url('enemy1.png');
+            background-size: 100% 100%;
+        }
+    </style>
 
 </title>
 
@@ -13,15 +33,21 @@
     </div>
     <div id="playerShip" style="width:15%;height:15%;position: absolute;z-index:10 ; background-image: url('spaceship.png');
     background-size: 100% 100%;">
-        <div id="exaust1" style="width:15%;height:15%;position: absolute;right:53%;top:100%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
+        <div id="exaust1"
+            style="width:15%;height:15%;position: absolute;right:53%;top:100%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
         </div>
-        <div id="exaust2" style="width:15%;height:15%;position: absolute;right:31%;top:100%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
+        <div id="exaust2"
+            style="width:15%;height:15%;position: absolute;right:31%;top:100%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
         </div>
-        <div id="exaust3" style="width:15%;height:15%;position: absolute;right:15%;top:85%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
+        <div id="exaust3"
+            style="width:15%;height:15%;position: absolute;right:15%;top:85%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
         </div>
-        <div id="exaust4" style="width:15%;height:15%;position: absolute;right:69%;top:85%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
+        <div id="exaust4"
+            style="width:15%;height:15%;position: absolute;right:69%;top:85%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
         </div>
     </div>
+    <div id="enemyContainer1"></div>
+
     <!-- <div style="width:100%;height:100%;position: absolute; background-image: url('bg1.jpg');">
     </div> -->
     <!-- <canvas id="mainCanvas" style="border:1px solid #000000;">
@@ -36,10 +62,6 @@
         let bgImageV2 = -window.innerHeight;
         let bgImageVFrameShift = 1;
 
-
-
-
-
         // init();
 
         function init() {
@@ -50,7 +72,7 @@
             canvasH = canvas.height;
         }
 
-        let speedMax = 5;
+        let speedMax = 10;
         let speedUp = 1;
         let speedDown = 1;
         let speedRight = 1;
@@ -58,7 +80,7 @@
         let keysPressed = {};
         document.addEventListener('keydown', (event) => {
             keysPressed[event.key] = true;
-
+            // console.log(event.key)
         });
 
         document.addEventListener('keyup', (event) => {
@@ -76,10 +98,31 @@
         });
 
 
+        let fire1perioud = 10;
+        let lastFire = 10;
+        let lastFirePosition = -1;
+
+        function fire1() {
+            var fire1div = document.createElement("DIV");
+            fire1div.classList.add("fire1div");
+            document.body.appendChild(fire1div);
+            fire1div.style.position = "absolute";
+            fire1div.style.top = playertop;
+            lastFirePosition = -lastFirePosition;
+            fire1div.style.width = "2%"
+            fire1div.style.height = "5%"
+            fire1div.style.right = parseInt(playerright) + parseInt(playerShip.clientWidth) / 2 - parseInt(fire1div.clientWidth) / 2 + lastFirePosition * 10;
+            fire1div.style.backgroundImage = "url('fire1.png')";
+            fire1div.style.backgroundSize = "100% 100%"
+            lastFire = fire1perioud;
+        }
+
         let right = true;
         let up = true;
         let left = true;
         let down = true;
+
+
 
         function moveBg() {
             bgImageV1 += bgImageVFrameShift;
@@ -94,7 +137,12 @@
             left = true;
             down = true;
 
-            if (keysPressed['Control'] && keysPressed['a']) {}
+            if (keysPressed['Control'] && keysPressed['a']) { }
+            if (keysPressed[' ']) {
+                if (lastFire < 1)
+                    fire1();
+            }
+
             if (keysPressed['ArrowRight'] && keysPressed['ArrowUp']) {
                 playerright -= speedRight;
                 if (speedRight < speedMax) speedRight++;
@@ -159,7 +207,18 @@
 
         var int = self.setInterval(moveBg, 10);
 
+        let enemy1_top_lineX = 100;
+        let enemy1_lineY_fluxwation = 50;
         function update() {
+            var x = document.getElementsByClassName("enemy1")
+            for (i = 0; i < x.length; i++) {
+                x[i].style.right = parseInt(x[i].style.right) + 5;
+                x[i].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[i].style.right) / 40) + enemy1_top_lineX;
+                if (parseInt(x[i].style.right) > window.innerWidth + 400)
+                    x[i].parentNode.removeChild(x[i]);
+            }
+
+
             if (playertop > window.innerHeight * .8)
                 playertop = window.innerHeight * .8;
             if (playertop < window.innerHeight * .0)
@@ -170,7 +229,45 @@
                 playerright = window.innerWidth * .05;
             playerShip.style.top = playertop;
             playerShip.style.right = playerright;
+
+
+            var x = document.getElementsByClassName("fire1div")
+            for (i = 0; i < x.length; i++) {
+                if (parseInt(x[i].style.top) > 0)
+                    x[i].style.top = parseInt(x[i].style.top) - 10;
+                else {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+            lastFire--;
+
         }
+
+
+        function createEnemy1() {
+            var enemy1 = document.createElement("DIV");
+            enemy1.classList.add("enemy1");
+
+            document.getElementById("enemyContainer1").appendChild(enemy1);
+            enemy1.style.position = "absolute";
+            enemy1.style.top = 100;
+            enemy1.style.right = -400;
+            enemy1.style.width = "15%"
+            enemy1.style.height = "15%"
+            enemy1.style.backgroundImage = "url('enemy1.png')";
+            enemy1.style.backgroundSize = "100% 100%"
+        }
+
+        function generateEnemies(enemy_count, time_diff, line_x, y_fluxwation) { // generateEnemy(number of enemies , timedifference , enemy1_top_lineX , enemy1_lineY_fluxwation)
+            for (i = 0; i < enemy_count; i++) {
+                setTimeout(function () { createEnemy1(); }, i * time_diff);
+            }
+
+
+        }
+
+        setTimeout(function () { generateEnemies(5, 2000, 100, 50); }, 100);
+
 
         update();
     </script>
