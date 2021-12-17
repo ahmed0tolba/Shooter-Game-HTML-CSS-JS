@@ -1,7 +1,11 @@
+<!DOCTYPE html>
 <html>
-<title>
+
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1.0, user-scalable=no" />
 
     <style>
+
         .fire1div {
             width: 2%;
             height: 5%;
@@ -23,9 +27,9 @@
         }
     </style>
 
-</title>
+</head>
 
-<body style="margin: 0%;padding: 0%;overflow: hidden;">
+<body style="margin: 0%;padding: 0%;overflow: hidden;width: 100vw;height: 100vh;">
 
     <div id="bg1" style="width:100%;height:101%;position: absolute; background-image: url('bg1.jpg');">
     </div>
@@ -107,11 +111,11 @@
             fire1div.classList.add("fire1div");
             document.body.appendChild(fire1div);
             fire1div.style.position = "absolute";
-            fire1div.style.top = playertop;
+            fire1div.style.top = playertop + "px";
             lastFirePosition = -lastFirePosition;
             fire1div.style.width = "2%"
             fire1div.style.height = "5%"
-            fire1div.style.right = parseInt(playerright) + parseInt(playerShip.clientWidth) / 2 - parseInt(fire1div.clientWidth) / 2 + lastFirePosition * 10;
+            fire1div.style.right = parseInt(playerright) + parseInt(playerShip.clientWidth) / 2 - parseInt(fire1div.clientWidth) / 2 + lastFirePosition * 10 + "px";
             fire1div.style.backgroundImage = "url('fire1.png')";
             fire1div.style.backgroundSize = "100% 100%"
             lastFire = fire1perioud;
@@ -212,8 +216,8 @@
         function update() {
             var x = document.getElementsByClassName("enemy1")
             for (i = 0; i < x.length; i++) {
-                x[i].style.right = parseInt(x[i].style.right) + 5;
-                x[i].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[i].style.right) / 40) + enemy1_top_lineX;
+                x[i].style.right = parseInt(x[i].style.right) + 5 + "px";
+                x[i].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[i].style.right) / 40) + enemy1_top_lineX + "px";
                 if (parseInt(x[i].style.right) > window.innerWidth + 400)
                     x[i].parentNode.removeChild(x[i]);
             }
@@ -227,20 +231,29 @@
                 playerright = window.innerWidth * .8;
             if (playerright < window.innerWidth * .05)
                 playerright = window.innerWidth * .05;
-            playerShip.style.top = playertop;
-            playerShip.style.right = playerright;
+            playerShip.style.top = playertop + "px";
+            playerShip.style.right = playerright + "px";
 
 
-            var x = document.getElementsByClassName("fire1div")
-            for (i = 0; i < x.length; i++) {
-                if (parseInt(x[i].style.top) > 0)
-                    x[i].style.top = parseInt(x[i].style.top) - 10;
+            var f = document.getElementsByClassName("fire1div")
+            for (i = 0; i < f.length; i++) {
+                if (parseInt(f[i].style.top) > 0)
+                    f[i].style.top = parseInt(f[i].style.top) - 10 + "px";
                 else {
-                    x[i].parentNode.removeChild(x[i]);
+                    f[i].parentNode.removeChild(f[i]);
                 }
             }
             lastFire--;
 
+            for (i = 0; i < f.length; i++) {
+                for (j = 0; j < x.length; j++) {
+                    console.log(parseInt(f[i].style.top)-parseInt(x[j].style.top))
+                    if (Math.abs(parseInt(f[i].style.top)-parseInt(x[j].style.top))<50 && Math.abs(parseInt(f[i].style.right)-parseInt(x[j].style.right))<50){
+                        f[i].parentNode.removeChild(f[i]);
+                        x[j].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
         }
 
 
@@ -250,8 +263,8 @@
 
             document.getElementById("enemyContainer1").appendChild(enemy1);
             enemy1.style.position = "absolute";
-            enemy1.style.top = 100;
-            enemy1.style.right = -400;
+            enemy1.style.top = 100 + "px";
+            enemy1.style.right = -400 + "px";
             enemy1.style.width = "15%"
             enemy1.style.height = "15%"
             enemy1.style.backgroundImage = "url('enemy1.png')";
