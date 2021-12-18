@@ -5,7 +5,6 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1.0, user-scalable=no" />
 
     <style>
-
         .fire1div {
             width: 2%;
             height: 5%;
@@ -31,6 +30,17 @@
 
 <body style="margin: 0%;padding: 0%;overflow: hidden;width: 100vw;height: 100vh;">
 
+    <div id="startDiv" style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
+        Space to fire
+        <br>
+        P to pause
+        <br>
+        <button style="width: 45vw;padding: 1%;margin: 2%; font-size: 15vw;border-radius: 30px;background-image: radial-gradient(rgba(100,200,100,.1),rgba(100,200,100,.9));" onclick="StartResume()">
+        Start
+        </button>
+
+    </div>
+
     <div id="bg1" style="width:100%;height:101%;position: absolute; background-image: url('bg1.jpg');">
     </div>
     <div id="bg2" style="width:100%;height:101%;position: absolute; background-image: url('bg1.jpg');">
@@ -51,6 +61,7 @@
         </div>
     </div>
     <div id="enemyContainer1"></div>
+    <div id="explosionContainer"></div>
 
     <!-- <div style="width:100%;height:100%;position: absolute; background-image: url('bg1.jpg');">
     </div> -->
@@ -60,11 +71,22 @@
 
     <script>
         var playerShip = document.getElementById("playerShip");
+        var refwidth = 0;
+        if (window.innerWidth > window.innerHeight) { refwidth = window.innerWidth; }
+        else { refwidth = window.innerHeight; }
+        let playerwidth = refwidth * .1;
+        let playerheight = playerwidth * 28 / 35; // dimentions
+        playerShip.style.width = playerwidth + "px";
+        playerShip.style.height = playerheight + "px";
+        let enemy1width = refwidth * .08;
+        let enemy1height = enemy1width * 26 / 32;// dimentions
         let playertop = window.innerHeight * .7;
         let playerright = window.innerWidth * .45;
         let bgImageV1 = 0;
         let bgImageV2 = -window.innerHeight;
         let bgImageVFrameShift = 1;
+        let explosion1width = refwidth * .1
+        let explosion1height = explosion1width * 20 / 21
 
         // init();
 
@@ -209,17 +231,33 @@
 
         }
 
-        var int = self.setInterval(moveBg, 10);
+        function createExplosion(x, y) {
+            var explosion1 = document.createElement("DIV");
+            // explosion1.classList.add("explosion1");
+            document.getElementById("explosionContainer").appendChild(explosion1);
+            explosion1.style.position = "absolute";
+            explosion1.style.top = y + "px";
+            explosion1.style.right = x + "px";
+            explosion1.style.width = explosion1width + "px"
+            explosion1.style.height = explosion1height + "px"
+            explosion1.style.backgroundImage = "url('explosion.gif')";
+            explosion1.style.backgroundSize = "100% 100%"
+
+            
+            setTimeout(function () { explosion1.parentNode.removeChild(explosion1); }, 300);
+        }
+
+        
 
         let enemy1_top_lineX = 100;
         let enemy1_lineY_fluxwation = 50;
         function update() {
             var x = document.getElementsByClassName("enemy1")
-            for (i = 0; i < x.length; i++) {
-                x[i].style.right = parseInt(x[i].style.right) + 5 + "px";
-                x[i].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[i].style.right) / 40) + enemy1_top_lineX + "px";
-                if (parseInt(x[i].style.right) > window.innerWidth + 400)
-                    x[i].parentNode.removeChild(x[i]);
+            for (e = 0; e < x.length; e++) {
+                x[e].style.right = parseInt(x[e].style.right) + 5 + "px";
+                x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
+                if (parseInt(x[e].style.right) > window.innerWidth + 400)
+                    x[e].parentNode.removeChild(x[e]);
             }
 
 
@@ -246,11 +284,13 @@
             lastFire--;
 
             for (i = 0; i < f.length; i++) {
-                for (j = 0; j < x.length; j++) {
-                    console.log(parseInt(f[i].style.top)-parseInt(x[j].style.top))
-                    if (Math.abs(parseInt(f[i].style.top)-parseInt(x[j].style.top))<50 && Math.abs(parseInt(f[i].style.right)-parseInt(x[j].style.right))<50){
+                for (e = 0; e < x.length; e++) {
+                    // console.log(enemy1width)
+                    if (Math.abs(parseInt(f[i].style.top) - parseInt(x[e].style.top) - enemy1height /2) < enemy1height / 2 && Math.abs(parseInt(f[i].style.right) - parseInt(x[e].style.right) - enemy1width/2 ) < enemy1width / 2) {
+                        
+                        createExplosion(parseInt(x[e].style.right), parseInt(x[e].style.top));
                         f[i].parentNode.removeChild(f[i]);
-                        x[j].parentNode.removeChild(x[i]);
+                        x[e].parentNode.removeChild(x[e]);
                     }
                 }
             }
@@ -265,8 +305,8 @@
             enemy1.style.position = "absolute";
             enemy1.style.top = 100 + "px";
             enemy1.style.right = -400 + "px";
-            enemy1.style.width = "15%"
-            enemy1.style.height = "15%"
+            enemy1.style.width = enemy1width + "px"
+            enemy1.style.height = enemy1height + "px"
             enemy1.style.backgroundImage = "url('enemy1.png')";
             enemy1.style.backgroundSize = "100% 100%"
         }
@@ -283,6 +323,11 @@
 
 
         update();
+
+        function StartResume(){
+            var int = self.setInterval(moveBg, 10);
+            document.getElementById("startDiv").style.
+        }
     </script>
 </body>
 
