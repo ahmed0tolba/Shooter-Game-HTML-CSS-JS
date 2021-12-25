@@ -5,6 +5,18 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1.0, user-scalable=no" />
 
     <style>
+        #shield {
+            width: 120%;
+            height: 140%;
+            position: absolute;
+            right: -10%;
+            top: -20%;
+            z-index: 11;
+            background-image: url('sheild2.png');
+            background-size: 100% 100%;
+            transition-timing-function: ease-out;
+        }
+
         .fire1div {
             width: 2%;
             height: 5%;
@@ -24,19 +36,32 @@
             background-image: url('enemy1.png');
             background-size: 100% 100%;
         }
+
+        .showShield {
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .hideShield {
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
     </style>
 
 </head>
 
 <body style="margin: 0%;padding: 0%;overflow: hidden;width: 100vw;height: 100vh;">
 
-    <div id="startDiv" style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
+    <div id="startDiv"
+        style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
         Space to fire
         <br>
         P to pause
         <br>
-        <button style="width: 45vw;padding: 1%;margin: 2%; font-size: 15vw;border-radius: 30px;background-image: radial-gradient(rgba(100,200,100,.1),rgba(100,200,100,.9));" onclick="StartResume()">
-        Start
+        <button
+            style="width: 45vw;padding: 1%;margin: 2%; font-size: 15vw;border-radius: 30px;background-image: radial-gradient(rgba(100,200,100,.1),rgba(100,200,100,.9));"
+            onclick="Start()">
+            Start
         </button>
 
     </div>
@@ -47,6 +72,8 @@
     </div>
     <div id="playerShip" style="width:15%;height:15%;position: absolute;z-index:10 ; background-image: url('spaceship.png');
     background-size: 100% 100%;">
+        <div id="shield" style="">
+        </div>
         <div id="exaust1"
             style="width:15%;height:15%;position: absolute;right:53%;top:100%;z-index:10 ; background-image: url('engine.gif');background-size: 100% 100%;transform: scaleY(-1);">
         </div>
@@ -62,7 +89,16 @@
     </div>
     <div id="enemyContainer1"></div>
     <div id="explosionContainer"></div>
+    <div id="Lives" style="position: absolute;width:6em;height: 1em; bottom: 10px;font-size: 4em;color: wheat;"><span
+            style="vertical-align: top;position:relative; bottom:.2ex;">&nbsp;3 </span><img src="lifes.png"
+            height="100%"></div>
+    <div id="Health"
+        style="position: absolute;width:12em;height: 2em;right:10px; bottom: 10px;color: wheat;background-color: rgba(100,200,100,.0);border:4px solid white ; border-radius:1em;">
+        <div id="HealthInternal"
+            style="background-color:rgba(40, 255, 40, 0.623);width: 100%;height: 100%;border-radius:.8em;">
 
+        </div>
+    </div>
     <!-- <div style="width:100%;height:100%;position: absolute; background-image: url('bg1.jpg');">
     </div> -->
     <!-- <canvas id="mainCanvas" style="border:1px solid #000000;">
@@ -72,6 +108,7 @@
     <script>
         var playerShip = document.getElementById("playerShip");
         var refwidth = 0;
+        var health = 100;
         if (window.innerWidth > window.innerHeight) { refwidth = window.innerWidth; }
         else { refwidth = window.innerHeight; }
         let playerwidth = refwidth * .1;
@@ -87,7 +124,8 @@
         let bgImageVFrameShift = 1;
         let explosion1width = refwidth * .1
         let explosion1height = explosion1width * 20 / 21
-
+        var shield = document.getElementById("shield");
+        shield.classList.add("hideShield");
         // init();
 
         function init() {
@@ -243,16 +281,17 @@
             explosion1.style.backgroundImage = "url('explosion.gif')";
             explosion1.style.backgroundSize = "100% 100%"
 
-            
+
             setTimeout(function () { explosion1.parentNode.removeChild(explosion1); }, 300);
         }
 
-        
+
 
         let enemy1_top_lineX = 100;
         let enemy1_lineY_fluxwation = 50;
         function update() {
             var x = document.getElementsByClassName("enemy1")
+            var f = document.getElementsByClassName("fire1div")
             for (e = 0; e < x.length; e++) {
                 x[e].style.right = parseInt(x[e].style.right) + 5 + "px";
                 x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
@@ -273,7 +312,7 @@
             playerShip.style.right = playerright + "px";
 
 
-            var f = document.getElementsByClassName("fire1div")
+            
             for (i = 0; i < f.length; i++) {
                 if (parseInt(f[i].style.top) > 0)
                     f[i].style.top = parseInt(f[i].style.top) - 10 + "px";
@@ -283,14 +322,28 @@
             }
             lastFire--;
 
-            for (i = 0; i < f.length; i++) {
-                for (e = 0; e < x.length; e++) {
+            
+            for (e = 0; e < x.length; e++) {
+                if (Math.abs(playertop - parseInt(x[e].style.top)) < enemy1height && Math.abs(playerright - parseInt(x[e].style.right)) < enemy1width) {
+
+                    createExplosion(parseInt(x[e].style.right), parseInt(x[e].style.top));
+                    health = health - 10;
+                    HealthInternal = document.getElementById("HealthInternal").style.width = health + "%";
+                    x[e].parentNode.removeChild(x[e]);
+                    shield.classList.remove("hideShield");
+                    setTimeout(function () { shield.classList.add("hideShield"); }, 500);
+                    break;
+                }
+
+                for (i = 0; i < f.length; i++) {
+
                     // console.log(enemy1width)
-                    if (Math.abs(parseInt(f[i].style.top) - parseInt(x[e].style.top) - enemy1height /2) < enemy1height / 2 && Math.abs(parseInt(f[i].style.right) - parseInt(x[e].style.right) - enemy1width/2 ) < enemy1width / 2) {
-                        
+                    if (Math.abs(parseInt(f[i].style.top) - parseInt(x[e].style.top) - enemy1height / 2) < enemy1height / 2 && Math.abs(parseInt(f[i].style.right) - parseInt(x[e].style.right) - enemy1width / 2) < enemy1width / 2) {
+
                         createExplosion(parseInt(x[e].style.right), parseInt(x[e].style.top));
                         f[i].parentNode.removeChild(f[i]);
                         x[e].parentNode.removeChild(x[e]);
+                        break;
                     }
                 }
             }
@@ -319,14 +372,15 @@
 
         }
 
-        setTimeout(function () { generateEnemies(5, 2000, 100, 50); }, 100);
+
 
 
         update();
 
-        function StartResume(){
+        function Start() {
             var int = self.setInterval(moveBg, 10);
-            document.getElementById("startDiv").style.
+            document.getElementById("startDiv").style.display = "none";
+            setTimeout(function () { generateEnemies(5, 2000, 100, 50); }, 100);
         }
     </script>
 </body>
