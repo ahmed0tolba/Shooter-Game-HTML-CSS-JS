@@ -26,7 +26,8 @@
             background-size: 100% 100%;
         }
 
-        .enemy1 {
+        .enemy1,
+        .enemy2 {
             width: 15%;
             height: 15%;
             position: absolute;
@@ -95,7 +96,7 @@
     <div id="Health"
         style="position: absolute;width:12em;height: 2em;right:10px; bottom: 10px;color: wheat;background-color: rgba(100,200,100,.0);border:4px solid white ; border-radius:1em;">
         <div id="HealthInternal"
-            style="background-color:rgba(40, 255, 40, 0.623);width: 100%;height: 100%;border-radius:.8em;">
+            style="background-color:rgba(40, 151, 255, 0.623);width: 100%;height: 100%;border-radius:.8em;">
 
         </div>
     </div>
@@ -106,6 +107,7 @@
 
 
     <script>
+
         var playerShip = document.getElementById("playerShip");
         var refwidth = 0;
         var health = 100;
@@ -127,13 +129,23 @@
         var shield = document.getElementById("shield");
         shield.classList.add("hideShield");
         // init();
-
+        var totalGeneraterEnemies = 0;
         function init() {
-            canvas = document.getElementById("mainCanvas");
-            canvas.width = document.body.clientWidth; //document.width is obsolete
-            canvas.height = document.body.clientHeight; //document.height is obsolete
-            canvasW = canvas.width;
-            canvasH = canvas.height;
+            if (window.innerWidth > window.innerHeight) { refwidth = window.innerWidth; }
+            else { refwidth = window.innerHeight; }
+            playerwidth = refwidth * .1;
+            playerheight = playerwidth * 28 / 35; // dimentions
+            playerShip.style.width = playerwidth + "px";
+            playerShip.style.height = playerheight + "px";
+            enemy1width = refwidth * .08;
+            enemy1height = enemy1width * 26 / 32;// dimentions
+            playertop = window.innerHeight * .7;
+            playerright = window.innerWidth * .45;
+            bgImageV1 = 0;
+            bgImageV2 = -window.innerHeight;
+            bgImageVFrameShift = 1;
+            explosion1width = refwidth * .1
+            explosion1height = explosion1width * 20 / 21
         }
 
         let speedMax = 10;
@@ -286,43 +298,49 @@
         }
 
 
-
-        let enemy1_top_lineX = 100;
-        let enemy1_lineY_fluxwation = 50;
-        function update() {
-            var x = document.getElementsByClassName("enemy1")
-            var f = document.getElementsByClassName("fire1div")
-            for (e = 0; e < x.length; e++) {
-                x[e].style.right = parseInt(x[e].style.right) + 5 + "px";
-                x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
-                if (parseInt(x[e].style.right) > window.innerWidth + 400)
-                    x[e].parentNode.removeChild(x[e]);
-            }
-
-
-            if (playertop > window.innerHeight * .8)
-                playertop = window.innerHeight * .8;
-            if (playertop < window.innerHeight * .0)
-                playertop = window.innerHeight * .0;
-            if (playerright > window.innerWidth * .8)
-                playerright = window.innerWidth * .8;
-            if (playerright < window.innerWidth * .05)
-                playerright = window.innerWidth * .05;
-            playerShip.style.top = playertop + "px";
-            playerShip.style.right = playerright + "px";
-
-
-            
-            for (i = 0; i < f.length; i++) {
-                if (parseInt(f[i].style.top) > 0)
-                    f[i].style.top = parseInt(f[i].style.top) - 10 + "px";
-                else {
-                    f[i].parentNode.removeChild(f[i]);
+        function MoveEnemy(enemyIDname, pattern) {
+            var x = document.getElementsByClassName(enemyIDname)
+            if (pattern == 1) {
+                let enemy1_lineY_fluxwation = 50;
+                let enemy1_top_lineX = 100;
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.right = parseInt(x[e].style.right) + 5 + "px";
+                    x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
+                    if (parseInt(x[e].style.right) > window.innerWidth + 400)
+                        x[e].parentNode.removeChild(x[e]);
                 }
             }
-            lastFire--;
+            if (pattern == 2) {
+                let enemy1_lineY_fluxwation = 50;
+                let enemy1_top_lineX = 100;
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.right = parseInt(x[e].style.right) - 5 + "px";
+                    x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
+                    if (parseInt(x[e].style.right) < - 400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+            if (x.length == 0) return true;
+            else return false;
+        }
 
-            
+        function MoveBullet(bulletName, pattern) {
+            var f = document.getElementsByClassName(bulletName)
+            if (pattern == 1) {
+                for (i = 0; i < f.length; i++) {
+                    if (parseInt(f[i].style.top) > 0)
+                        f[i].style.top = parseInt(f[i].style.top) - 10 + "px";
+                    else {
+                        f[i].parentNode.removeChild(f[i]);
+                    }
+                }
+                lastFire--;
+            }
+        }
+
+        function checkEnemyShotCollide(bulletName, pattern) {
+            var f = document.getElementsByClassName(bulletName)
+            var x = document.getElementsByClassName(pattern)
             for (e = 0; e < x.length; e++) {
                 if (Math.abs(playertop - parseInt(x[e].style.top)) < enemy1height && Math.abs(playerright - parseInt(x[e].style.right)) < enemy1width) {
 
@@ -347,29 +365,67 @@
                     }
                 }
             }
+
+        }
+
+        var started0 = false;
+        var started1 = false;
+        var started2 = false;
+        var started3 = false;
+        var started4 = false;
+        var started5 = false;
+        var started6 = false;
+        var started7 = false;
+        var started8 = false;
+        var started9 = false;
+        var started10 = false;
+        function update() {
+
+
+            if (playertop > window.innerHeight * .8)
+                playertop = window.innerHeight * .8;
+            if (playertop < window.innerHeight * .0)
+                playertop = window.innerHeight * .0;
+            if (playerright > window.innerWidth * .8)
+                playerright = window.innerWidth * .8;
+            if (playerright < window.innerWidth * .05)
+                playerright = window.innerWidth * .05;
+            playerShip.style.top = playertop + "px";
+            playerShip.style.right = playerright + "px";
+
+            MoveBullet("fire1div", 1);
+            checkEnemyShotCollide("fire1div", "enemy1")
+            checkEnemyShotCollide("fire1div", "enemy2")
+            // MoveEnemy("enemy1", 1)
+            // console.log(totalGeneraterEnemies)
+            finished0 = MoveEnemy("enemy1", 1)
+            finished1 = MoveEnemy("enemy2", 2)
+            if (totalGeneraterEnemies>4 && !started1) {
+                started1 = true;
+                setTimeout(function () { generateEnemies("enemy2", 5, 2000, 100,window.innerWidth + 400); }, 1000);
+            }
+
         }
 
 
-        function createEnemy1() {
+        function createEnemy1(enemyClassName, line_x , start_x) {
             var enemy1 = document.createElement("DIV");
-            enemy1.classList.add("enemy1");
-
+            enemy1.classList.add(enemyClassName);
             document.getElementById("enemyContainer1").appendChild(enemy1);
             enemy1.style.position = "absolute";
-            enemy1.style.top = 100 + "px";
-            enemy1.style.right = -400 + "px";
+            enemy1.style.top = line_x + "px";
+            enemy1.style.right = start_x + "px";
             enemy1.style.width = enemy1width + "px"
             enemy1.style.height = enemy1height + "px"
             enemy1.style.backgroundImage = "url('enemy1.png')";
             enemy1.style.backgroundSize = "100% 100%"
         }
 
-        function generateEnemies(enemy_count, time_diff, line_x, y_fluxwation) { // generateEnemy(number of enemies , timedifference , enemy1_top_lineX , enemy1_lineY_fluxwation)
+        function generateEnemies(enemyClassName, enemy_count, time_diff, line_x,start_x) {
+            // generateEnemy(number of enemies , timedifference )
             for (i = 0; i < enemy_count; i++) {
-                setTimeout(function () { createEnemy1(); }, i * time_diff);
+                setTimeout(function () { createEnemy1(enemyClassName, line_x, start_x); totalGeneraterEnemies++; }, i * time_diff);
             }
-
-
         }
 
 
@@ -380,7 +436,11 @@
         function Start() {
             var int = self.setInterval(moveBg, 10);
             document.getElementById("startDiv").style.display = "none";
-            setTimeout(function () { generateEnemies(5, 2000, 100, 50); }, 100);
+            setTimeout(function () { generateEnemies("enemy1", 5, 2000, 100,-400); }, 100);
+        }
+
+        window.onresize = function () {
+            init();
         }
     </script>
 </body>
