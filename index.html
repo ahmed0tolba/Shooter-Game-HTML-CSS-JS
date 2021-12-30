@@ -5,7 +5,13 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1.0, user-scalable=no" />
 
     <style>
-        html, body {margin: 0; height: 100%; overflow: hidden}
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden
+        }
+
         #shield {
             width: 120%;
             height: 140%;
@@ -52,7 +58,8 @@
 
 </head>
 
-<body style="margin: 0%;padding: 0%;overflow: hidden;width: 100vw;height: 100vh;">
+<body ontouchstart="showCoordinates(event)" ontouchmove="showCoordinates(event)" onmousemove="printMousePos(event)"
+    style="margin: 0%;padding: 0%;overflow: hidden;width: 100vw;height: 100vh;">
 
     <div id="startDiv"
         style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
@@ -89,7 +96,7 @@
     </div>
     <div id="enemyContainer1"></div>
     <div id="explosionContainer"></div>
-    <div id="Lives" style="position: absolute;width:6em;height: 1em; bottom: 10px;font-size: 4em;color: wheat;"><span
+    <div id="Lives" style="position: absolute;width:6em;height: 1em; bottom: 10px;font-size: 4em;color: wheat;"><span id="Lives2"
             style="vertical-align: top;position:relative; bottom:.2ex;">&nbsp;3 </span><img src="lifes.png"
             height="100%"></div>
     <div id="Health"
@@ -106,7 +113,18 @@
 
 
     <script>
-
+        let playerMovingClick = false;
+        let clickX = 0;
+        let clickY = 0;
+        function showCoordinates(event) {
+            playerMovingClick = true;
+            touching = true;
+            clickX = event.touches[0].clientX;
+            clickY = event.touches[0].clientY;
+            fire1();
+            var coords = "X coords: " + clickX + ", Y coords: " + clickY;
+            document.getElementById("Lives2").innerHTML = coords;
+        }
         var playerShip = document.getElementById("playerShip");
         var refwidth = 0;
         var health = 100;
@@ -127,6 +145,7 @@
         let explosion1height = explosion1width * 20 / 21
         var shield = document.getElementById("shield");
         shield.classList.add("hideShield");
+        let touching = false;
         // init();
         var totalGeneraterEnemies = 0;
         function init() {
@@ -214,7 +233,7 @@
             down = true;
 
             if (keysPressed['Control'] && keysPressed['a']) { }
-            if (keysPressed[' ']) {
+            if (keysPressed[' '] || touching) {
                 Start();
                 fire1();
             }
@@ -413,7 +432,7 @@
                 started1 = true;
                 setTimeout(function () { generateEnemies("enemy2", 5, 2000, 100, window.innerWidth + 400); }, 1000);
             }
-            if (playerMovingClick)
+            if (playerMovingClick || touching)
                 movePlayerToPoint();
         }
 
@@ -438,9 +457,7 @@
             }
         }
 
-        let playerMovingClick = false;
-        let clickX = 0;
-        let clickY = 0;
+
 
         function movePlayerToPoint() {
 
@@ -456,16 +473,27 @@
         }
 
 
-        function printMousePos(event) {
+        function printMousePos(mouseEvent) {
             playerMovingClick = true;
-            clickX = event.clientX + playerwidth / 2;
-            clickY = event.clientY - playerheight / 2;
+            if (mouseEvent) {
+                //FireFox
+                clickX = mouseEvent.clientX + playerwidth / 2;
+                clickY = mouseEvent.clientY - playerheight / 2;
+            }
+            else {
+                //IE
+                clickX = window.event.screenX + playerwidth / 2;
+                clickY = window.event.screenY - playerheight / 2;
+            }
+            // clickX = event.clientX + playerwidth / 2;
+            // clickY = event.clientY - playerheight / 2;
         }
 
         update();
         var int;
         let started = false;
         function Start() {
+            // console.log("hi")
             if (started) return;
             started = true;
             int = self.setInterval(moveBg, 10);
@@ -477,7 +505,22 @@
             init();
         }
 
-        document.addEventListener("mousemove", printMousePos);
+
+        function touchMouseClickstart() {
+            touching = true;
+        }
+        function touchMouseClickend() {
+            touching = false;
+        }
+
+
+
+        // document.addEventListener("mousemove", printMousePos);
+
+        document.addEventListener("DOMContentLoaded", function (event) {
+            window.addEventListener("touchstart", touchMouseClickstart, false);
+            window.addEventListener("touchend", touchMouseClickend, false);
+        });
 
     </script>
 </body>
