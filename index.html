@@ -55,9 +55,7 @@
 
     <div id="startDiv"
         style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
-        Space to fire
-        <br>
-        P to pause
+        Use Mouse and/or Keyboard and/or Touch to control
         <br>
         <button
             style="width: 45vw;padding: 1%;margin: 2%; font-size: 15vw;border-radius: 30px;background-image: radial-gradient(rgba(100,200,100,.1),rgba(100,200,100,.9));"
@@ -179,6 +177,7 @@
         let lastFirePosition = -1;
 
         function fire1() {
+            if (lastFire > 1) return;
             var fire1div = document.createElement("DIV");
             fire1div.classList.add("fire1div");
             document.body.appendChild(fire1div);
@@ -215,8 +214,8 @@
 
             if (keysPressed['Control'] && keysPressed['a']) { }
             if (keysPressed[' ']) {
-                if (lastFire < 1)
-                    fire1();
+                Start();
+                fire1();
             }
 
             if (keysPressed['ArrowRight'] && keysPressed['ArrowUp']) {
@@ -226,6 +225,7 @@
                 if (speedUp < speedMax) speedUp++;
                 right = false;
                 up = false;
+                playerMovingClick = false;
             }
             if (keysPressed['ArrowRight'] && keysPressed['ArrowDown']) {
                 playerright -= speedRight;
@@ -234,6 +234,7 @@
                 if (speedDown < speedMax) speedDown++;
                 right = false;
                 down = false;
+                playerMovingClick = false;
             }
             if (keysPressed['ArrowLeft'] && keysPressed['ArrowUp']) {
                 playerright += speedLeft;
@@ -242,6 +243,7 @@
                 if (speedUp < speedMax) speedUp++;
                 left = false;
                 up = false;
+                playerMovingClick = false;
             }
             if (keysPressed['ArrowLeft'] && keysPressed['ArrowDown']) {
                 playerright += speedLeft;
@@ -250,6 +252,7 @@
                 if (speedDown < speedMax) speedDown++;
                 left = false;
                 down = false;
+                playerMovingClick = false;
             }
 
 
@@ -261,21 +264,25 @@
             {
                 playerright -= speedRight;
                 if (speedRight < speedMax) speedRight++;
+                playerMovingClick = false;
             }
             if (keysPressed["ArrowUp"] && up) // up 
             {
                 playertop -= speedUp;
                 if (speedUp < speedMax) speedUp++;
+                playerMovingClick = false;
             }
             if (keysPressed["ArrowLeft"] && left) // left
             {
                 playerright += speedLeft;
                 if (speedLeft < speedMax) speedLeft++;
+                playerMovingClick = false;
             }
             if (keysPressed["ArrowDown"] && down) // down
             {
                 playertop += speedDown;
                 if (speedDown < speedMax) speedDown++;
+                playerMovingClick = false;
             }
             update()
 
@@ -300,11 +307,12 @@
 
         function MoveEnemy(enemyIDname, pattern) {
             var x = document.getElementsByClassName(enemyIDname)
+            var dist = Math.round(window.innerWidth / 400);
             if (pattern == 1) {
                 let enemy1_lineY_fluxwation = 50;
                 let enemy1_top_lineX = 100;
                 for (e = 0; e < x.length; e++) {
-                    x[e].style.right = parseInt(x[e].style.right) + 5 + "px";
+                    x[e].style.right = parseInt(x[e].style.right) + dist + "px";
                     x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
                     if (parseInt(x[e].style.right) > window.innerWidth + 400)
                         x[e].parentNode.removeChild(x[e]);
@@ -314,7 +322,7 @@
                 let enemy1_lineY_fluxwation = 50;
                 let enemy1_top_lineX = 100;
                 for (e = 0; e < x.length; e++) {
-                    x[e].style.right = parseInt(x[e].style.right) - 5 + "px";
+                    x[e].style.right = parseInt(x[e].style.right) - dist + "px";
                     x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
                     if (parseInt(x[e].style.right) < - 400)
                         x[e].parentNode.removeChild(x[e]);
@@ -400,15 +408,16 @@
             // console.log(totalGeneraterEnemies)
             finished0 = MoveEnemy("enemy1", 1)
             finished1 = MoveEnemy("enemy2", 2)
-            if (totalGeneraterEnemies>4 && !started1) {
+            if (totalGeneraterEnemies > 4 && !started1) {
                 started1 = true;
-                setTimeout(function () { generateEnemies("enemy2", 5, 2000, 100,window.innerWidth + 400); }, 1000);
+                setTimeout(function () { generateEnemies("enemy2", 5, 2000, 100, window.innerWidth + 400); }, 1000);
             }
-
+            if (playerMovingClick)
+                movePlayerToPoint();
         }
 
 
-        function createEnemy1(enemyClassName, line_x , start_x) {
+        function createEnemy1(enemyClassName, line_x, start_x) {
             var enemy1 = document.createElement("DIV");
             enemy1.classList.add(enemyClassName);
             document.getElementById("enemyContainer1").appendChild(enemy1);
@@ -421,27 +430,54 @@
             enemy1.style.backgroundSize = "100% 100%"
         }
 
-        function generateEnemies(enemyClassName, enemy_count, time_diff, line_x,start_x) {
+        function generateEnemies(enemyClassName, enemy_count, time_diff, line_x, start_x) {
             // generateEnemy(number of enemies , timedifference )
             for (i = 0; i < enemy_count; i++) {
                 setTimeout(function () { createEnemy1(enemyClassName, line_x, start_x); totalGeneraterEnemies++; }, i * time_diff);
             }
         }
 
+        let playerMovingClick = false;
+        let clickX = 0;
+        let clickY = 0;
+
+        function movePlayerToPoint() {
 
 
+            if (playerMovingClick) {
+                playerright = Math.round((playerright + (window.innerWidth - clickX)) / 2)
+                playertop = Math.round((playertop + clickY) / 2)
+            }
+            if (Math.abs(playerright - window.innerWidth + clickX) < 3 && playertop - clickY < 3) {
+                playerMovingClick = false;
+            }
+            fire1()
+        }
+
+
+        function printMousePos(event) {
+            playerMovingClick = true;
+            clickX = event.clientX + playerwidth / 2;
+            clickY = event.clientY - playerheight / 2;
+        }
 
         update();
-
+        var int;
+        let started = false;
         function Start() {
-            var int = self.setInterval(moveBg, 10);
+            if (started) return;
+            started = true;
+            int = self.setInterval(moveBg, 10);
             document.getElementById("startDiv").style.display = "none";
-            setTimeout(function () { generateEnemies("enemy1", 5, 2000, 100,-400); }, 100);
+            setTimeout(function () { generateEnemies("enemy1", 5, 2000, 100, -400); }, 100);
         }
 
         window.onresize = function () {
             init();
         }
+
+        document.addEventListener("mousemove", printMousePos);
+
     </script>
 </body>
 
