@@ -63,19 +63,21 @@
 
     <div id="startDiv"
         style="position: absolute;width:80%;height:80%;top:10%;right:10%;background-color: rgba(200, 200, 200,.8);z-index: 20; font-size: 5vw;text-align: center;border-radius: 20px;line-height: 10vh;">
-        Use Mouse and/or Keyboard and/or Touch to control
+        Use Mouse and/or Keyboard and/or Touch to control.
         <br>
         <button
             style="width: 45vw;padding: 1%;margin: 2%; font-size: 15vw;border-radius: 30px;background-image: radial-gradient(rgba(100,200,100,.1),rgba(100,200,100,.9));"
             onclick="Start()">
             Start
         </button>
+        <br>
+        By: Ahmed Tolba
 
     </div>
 
-    <div id="bg1" style="width:100%;height:131%;position: absolute; background-image: url('bg1.jpg');">
+    <div id="bg1" style="z-index: 0; width:100%;height:131%;position: absolute; background-image: url('bg1.jpg');">
     </div>
-    <div id="bg2" style="width:100%;height:131%;position: absolute; background-image: url('bg1.jpg');">
+    <div id="bg2" style="z-index: 1;width:100%;height:131%;position: absolute; background-image: url('bg1.jpg');">
     </div>
     <div id="playerShip" style="width:15%;height:15%;position: absolute;z-index:10 ; background-image: url('spaceship.png');
     background-size: 100% 100%;">
@@ -96,11 +98,12 @@
     </div>
     <div id="enemyContainer1"></div>
     <div id="explosionContainer"></div>
-    <div id="Lives" style="position: absolute;width:6em;height: 1em; bottom: 10px;font-size: 4em;color: wheat;"><span id="Lives2"
-            style="vertical-align: top;position:relative; bottom:.2ex;">&nbsp;3 </span><img src="lifes.png"
+    <div id="Lives"
+        style="position: absolute;width:6em;height: 1em; bottom: 10px;font-size: 4em;color: wheat;z-index:2 ;"><span
+            id="Lives2" style="vertical-align: top;position:relative; bottom:.2ex;">&nbsp;3 </span><img src="lifes.png"
             height="100%"></div>
     <div id="Health"
-        style="position: absolute;width:12em;height: 2em;right:10px; bottom: 10px;color: wheat;background-color: rgba(100,200,100,.0);border:4px solid white ; border-radius:1em;">
+        style="position: absolute;width:12em;height: 2em;right:10px; bottom: 10px;color: wheat;background-color: rgba(100,200,100,.0);border:4px solid white ; border-radius:1em;z-index:2 ;">
         <div id="HealthInternal"
             style="background-color:rgba(40, 151, 255, 0.623);width: 100%;height: 100%;border-radius:.8em;">
 
@@ -113,16 +116,7 @@
 
 
     <script>
-        let playerMovingClick = false;
-        let clickX = 0;
-        let clickY = 0;
-        function showCoordinates(event) {
-            playerMovingClick = true;
-            touching = true;
-            clickX = event.touches[0].clientX;
-            clickY = event.touches[0].clientY;
-            fire1();            
-        }
+        
         var playerShip = document.getElementById("playerShip");
         var refwidth = 0;
         var health = 100;
@@ -144,6 +138,18 @@
         var shield = document.getElementById("shield");
         shield.classList.add("hideShield");
         let touching = false;
+
+        let playerMovingClick = false;
+        let clickX = 0;
+        let clickY = 0;
+        function showCoordinates(event) {
+            playerMovingClick = true;
+            touching = true;
+            clickX = event.touches[0].clientX + playerwidth / 2;;
+            clickY = event.touches[0].clientY - playerheight / 2;;
+            fire1();
+        }
+
         // init();
         var totalGeneraterEnemies = 0;
         function init() {
@@ -195,6 +201,15 @@
         let lastFirePosition = -1;
 
         function fire1() {
+            if (playertop > window.innerHeight * .8)
+                playertop = window.innerHeight * .8;
+            if (playertop < window.innerHeight * .0)
+                playertop = window.innerHeight * .0;
+            if (playerright > window.innerWidth * .8)
+                playerright = window.innerWidth * .8;
+            if (playerright < window.innerWidth * .05)
+                playerright = window.innerWidth * .05;
+
             if (lastFire > 1) return;
             var fire1div = document.createElement("DIV");
             fire1div.classList.add("fire1div");
@@ -207,6 +222,7 @@
             fire1div.style.right = parseInt(playerright) + parseInt(playerShip.clientWidth) / 2 - parseInt(fire1div.clientWidth) / 2 + lastFirePosition * 10 + "px";
             fire1div.style.backgroundImage = "url('fire1.png')";
             fire1div.style.backgroundSize = "100% 100%"
+            fire1div.style.zIndex = "3"
             lastFire = fire1perioud;
         }
 
@@ -318,34 +334,90 @@
             explosion1.style.backgroundImage = "url('explosion.gif')";
             explosion1.style.backgroundSize = "100% 100%"
 
-
+            explosion1.style.zIndex = "3"
             setTimeout(function () { explosion1.parentNode.removeChild(explosion1); }, 300);
         }
 
+        let enemy1_lineY_fluxwation = window.innerHeight / 3;
+        let enemy1_top_lineX = 100;
+        let enemy2_lineY_fluxwation = 50;
+        let enemy2_top_lineX = 100;
+        let enemy3_lineY_fluxwation = 50;
+        let enemy3_top_lineX = 100;
+        let enemy4_lineY_fluxwation = window.innerHeight / 1.5;
+        let enemy4_top_lineX = 100;
+        let enemy5_lineX_fluxwation = window.innerWidth * .05;
+        let enemy5_top_lineY = .2 * window.innerWidth;
+        let enemy6_lineX_fluxwation = window.innerWidth * .05;
+        let enemy6_top_lineY = .75 * window.innerWidth;
+        let enemy7_lineY_fluxwation = window.innerHeight / 3;
+        let enemy7_top_lineX = 100;
 
         function MoveEnemy(enemyIDname, pattern) {
             var x = document.getElementsByClassName(enemyIDname)
             var dist = Math.round(window.innerWidth / 400);
-            if (pattern == 1) {
-                let enemy1_lineY_fluxwation = 50;
-                let enemy1_top_lineX = 100;
+            if (pattern == 1) { // right to left sin half screen
+
                 for (e = 0; e < x.length; e++) {
                     x[e].style.right = parseInt(x[e].style.right) + dist + "px";
-                    x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
+                    x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / window.innerWidth * 3.14) + enemy1_top_lineX + "px";
                     if (parseInt(x[e].style.right) > window.innerWidth + 400)
                         x[e].parentNode.removeChild(x[e]);
                 }
             }
-            if (pattern == 2) {
-                let enemy1_lineY_fluxwation = 50;
-                let enemy1_top_lineX = 100;
+            if (pattern == 2) { // left to right sin
+
                 for (e = 0; e < x.length; e++) {
                     x[e].style.right = parseInt(x[e].style.right) - dist + "px";
-                    x[e].style.top = enemy1_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy1_top_lineX + "px";
+                    x[e].style.top = enemy2_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy2_top_lineX + "px";
                     if (parseInt(x[e].style.right) < - 400)
                         x[e].parentNode.removeChild(x[e]);
                 }
             }
+            if (pattern == 3) { // right to left sin
+
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.right = parseInt(x[e].style.right) + dist + "px";
+                    x[e].style.top = enemy3_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / 40) + enemy3_top_lineX + "px";
+                    if (parseInt(x[e].style.right) > window.innerWidth + 400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+            if (pattern == 4) { // left to right sin full screen
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.right = parseInt(x[e].style.right) - dist + "px";
+                    x[e].style.top = enemy4_lineY_fluxwation * Math.sin(parseInt(x[e].style.right) / window.innerWidth * 3.14) + enemy4_top_lineX + "px";
+                    if (parseInt(x[e].style.right) < -400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+
+            if (pattern == 5) { // top to buttom right-side sin
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.top = parseInt(x[e].style.top) + dist + "px";
+                    x[e].style.right = enemy5_lineX_fluxwation * Math.sin(parseInt(x[e].style.top) / 40) + enemy5_top_lineY + "px";
+                    if (parseInt(x[e].style.top) > window.innerHeight + 400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+            if (pattern == 6) { // top to buttom left-side sin
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.top = parseInt(x[e].style.top) + dist + "px";
+                    x[e].style.right = enemy6_lineX_fluxwation * Math.sin(parseInt(x[e].style.top) / 40) + enemy6_top_lineY + "px";
+                    if (parseInt(x[e].style.top) > window.innerHeight + 400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+
+            if (pattern == 7) { // right to left x/sin half screen
+                for (e = 0; e < x.length; e++) {
+                    x[e].style.right = parseInt(x[e].style.right) + dist + "px";
+                    x[e].style.top = .002 * parseInt(x[e].style.right)  / Math.sin(.002*parseInt(x[e].style.right ))  + "px";
+                    if (parseInt(x[e].style.right) > window.innerWidth + 400)
+                        x[e].parentNode.removeChild(x[e]);
+                }
+            }
+
             if (x.length == 0) return true;
             else return false;
         }
@@ -391,7 +463,6 @@
                     }
                 }
             }
-
         }
 
         var started0 = false;
@@ -406,8 +477,6 @@
         var started9 = false;
         var started10 = false;
         function update() {
-
-
             if (playertop > window.innerHeight * .8)
                 playertop = window.innerHeight * .8;
             if (playertop < window.innerHeight * .0)
@@ -422,44 +491,117 @@
             MoveBullet("fire1div", 1);
             checkEnemyShotCollide("fire1div", "enemy1")
             checkEnemyShotCollide("fire1div", "enemy2")
+            checkEnemyShotCollide("fire1div", "enemy3")
+            checkEnemyShotCollide("fire1div", "enemy4")
+            checkEnemyShotCollide("fire1div", "enemy5")
+            checkEnemyShotCollide("fire1div", "enemy6")
+            checkEnemyShotCollide("fire1div", "enemy7")
             // MoveEnemy("enemy1", 1)
             // console.log(totalGeneraterEnemies)
             finished0 = MoveEnemy("enemy1", 1)
             finished1 = MoveEnemy("enemy2", 2)
+            finished1 = MoveEnemy("enemy3", 3)
+            finished1 = MoveEnemy("enemy4", 4)
+            finished1 = MoveEnemy("enemy5", 5)
+            finished1 = MoveEnemy("enemy6", 6)
+            finished1 = MoveEnemy("enemy7", 7)
             if (totalGeneraterEnemies > 4 && !started1) {
                 started1 = true;
-                setTimeout(function () { generateEnemies("enemy2", 5, 2000, 100, window.innerWidth + 400); }, 1000);
+                setTimeout(function () { generateEnemies("enemy2", 5, 500 + 500 * Math.random(), 100, window.innerWidth + 400); }, 1000);
             }
+
+            if (totalGeneraterEnemies > 9 && !started2) {
+                started2 = true;
+                setTimeout(function () { generateEnemies("enemy3", 5, 500 + 500 * Math.random(), 100, -400); }, 1000);
+
+                enemy5_lineX_fluxwation = window.innerWidth * Math.random() * .05;// range (0 to .05) 
+                enemy5_top_lineY = (.2 + (Math.random()*.55)) * window.innerWidth;// range (.2 to 75) 
+                enemy6_lineX_fluxwation = window.innerWidth * Math.random() * .05;// range (0 to .05) 
+                enemy6_top_lineY = (.2 + (Math.random()*.55)) * window.innerWidth;// range (.2 to .75) 
+            }
+
+            if (totalGeneraterEnemies > 14 && !started3) {
+                started3 = true;
+                setTimeout(function () { generateEnemies("enemy4", 5, 500 + 500 * Math.random(), 100, window.innerWidth + 400); }, 1000);
+            }
+
+            if (totalGeneraterEnemies > 19 && !started4) {
+                started4 = true;
+                setTimeout(function () { generateEnemies("enemy5", 5, 500 + 500 * Math.random(), -400, 400); }, 1000);
+            }
+
+            if (totalGeneraterEnemies > 24 && !started5) {
+                started5 = true;
+                setTimeout(function () { generateEnemies("enemy6", 5, 500 + 500 * Math.random(), -400, -400); }, 1000);
+            }
+
+            if (totalGeneraterEnemies > 29 && !started6) {
+                started6 = true;
+                setTimeout(function () { generateEnemies("enemy7", 5, 500 + 500 * Math.random(), 400, -400); }, 1000);
+            }
+
+            // reseting
+            if (totalGeneraterEnemies > 34) {
+                totalGeneraterEnemies = 0;
+                started0 = false;
+                started1 = false;
+                started2 = false;
+                started3 = false;
+                started4 = false;
+                started5 = false;
+                started6 = false;
+
+                enemy1_lineY_fluxwation = window.innerHeight / (Math.random() * 3); // range (0 to 3) 
+                enemy1_top_lineX = 100 + Math.random() * .3 * window.innerHeight; //  
+                
+                enemy2_lineY_fluxwation = Math.random() * 50; // 
+                enemy2_top_lineX = 100 + Math.random() * .8 * window.innerHeight; 
+                
+                enemy3_lineY_fluxwation = Math.random() * 50;// 
+                enemy3_top_lineX = 100 + Math.random() * .8 * window.innerHeight;// 
+
+                enemy4_lineY_fluxwation = Math.random() *window.innerHeight / (1.5);// range (0 to 1.5) 
+                enemy4_top_lineX = 100 + Math.random() * .2 * window.innerHeight;//  
+
+                
+                
+                
+
+                started0 = true;
+                setTimeout(function () { generateEnemies("enemy1", 5, 1000, 100, -400); }, 1000);
+            }
+
             if (playerMovingClick || touching)
                 movePlayerToPoint();
         }
 
 
-        function createEnemy1(enemyClassName, line_x, start_x) {
+        function createEnemy1(enemyClassName, y, x) {
             var enemy1 = document.createElement("DIV");
             enemy1.classList.add(enemyClassName);
             document.getElementById("enemyContainer1").appendChild(enemy1);
             enemy1.style.position = "absolute";
-            enemy1.style.top = line_x + "px";
-            enemy1.style.right = start_x + "px";
+            enemy1.style.top = y + "px";
+            enemy1.style.right = x + "px";
             enemy1.style.width = enemy1width + "px"
             enemy1.style.height = enemy1height + "px"
+            let x1=Math.floor(2*Math.random());
+            if (x1==0)
             enemy1.style.backgroundImage = "url('enemy1.png')";
+            if (x1==1)
+            enemy1.style.backgroundImage = "url('enemy5.gif')";
             enemy1.style.backgroundSize = "100% 100%"
+            enemy1.style.zIndex = "3"
         }
 
-        function generateEnemies(enemyClassName, enemy_count, time_diff, line_x, start_x) {
+        function generateEnemies(enemyClassName, enemy_count, time_diff, y, x) {
             // generateEnemy(number of enemies , timedifference )
             for (i = 0; i < enemy_count; i++) {
-                setTimeout(function () { createEnemy1(enemyClassName, line_x, start_x); totalGeneraterEnemies++; }, i * time_diff);
+                setTimeout(function () { createEnemy1(enemyClassName, y, x); totalGeneraterEnemies++; }, i * time_diff);
             }
         }
 
-
-
         function movePlayerToPoint() {
-
-
             if (playerMovingClick) {
                 playerright = Math.round((playerright + (window.innerWidth - clickX)) / 2)
                 playertop = Math.round((playertop + clickY) / 2)
